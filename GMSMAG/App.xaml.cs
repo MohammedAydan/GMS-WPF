@@ -7,6 +7,7 @@ using GMSMAG.ViewModels.Pages;
 using GMSMAG.ViewModels.UserControls;
 using GMSMAG.ViewModels.Windows;
 using GMSMAG.Views.Pages;
+using GMSMAG.Views.UserControls;
 using GMSMAG.Views.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +60,9 @@ namespace GMSMAG
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<SubscribersPage>();
+                services.AddSingleton<SubscribersViewModel>();
+                services.AddSingleton<SubscribersView>();
+
 
                 // DB Context
                 services.AddSingleton<AppDbContext>();
@@ -66,7 +70,8 @@ namespace GMSMAG
                 // Sql Opreations
                 services.AddScoped<IDataHelper<Subscriber>,SubscribersEntity>();
                 services.AddScoped<IDataHelper<SubscriptionsTypes>,SubscriptionsTypesEntity>();
-                services.AddSingleton<SubscribersViewModel>();
+                services.AddScoped<IDashboardEntity, DashboardEntity>();
+
             }).Build();
 
         /// <summary>

@@ -1,21 +1,27 @@
-﻿using GMSMAG.ViewModels.UserControls;
-using System.Windows.Controls;
+﻿using GMSMAG.ViewModels.Pages;
+using GMSMAG.ViewModels.UserControls;
+using Wpf.Ui.Controls;
 
 namespace GMSMAG.Views.UserControls
 {
     /// <summary>
     /// Interaction logic for SubscribersView.xaml
     /// </summary>
-    public partial class SubscribersView : UserControl
+    public partial class SubscribersView : INavigableView<SubscribersViewModel>
     {
-        public SubscribersView()
+        public SubscribersViewModel ViewModel { get; }
+
+        public SubscribersView(SubscribersViewModel viewModel)
         {
+            ViewModel = viewModel;
+            DataContext = ViewModel; // Set DataContext to the ViewModel
+
             InitializeComponent();
-            this.DataContext = App.GetService<SubscribersViewModel>();
-            initSItemForSearchComboBoc();
+
+            initSItemForSearchComboBox();
         }
 
-        private void initSItemForSearchComboBoc()
+        private void initSItemForSearchComboBox()
         {
             searchComboBox.Items.Clear();
             searchComboBox.Items.Add(new { Id = "Id", Name = "Id" });
