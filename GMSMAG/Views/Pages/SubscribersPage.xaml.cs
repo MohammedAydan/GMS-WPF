@@ -14,13 +14,11 @@ namespace GMSMAG.Views.Pages
 {
     public partial class SubscribersPage : Page
     {
-        private MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
-
         public SubscribersPage()
         {
             InitializeComponent();
 
-            subscribersStackPanel.Children.Add(new SubscribersView());
+            subscribersStackPanel.Children.Add(App.GetService<SubscribersView>());
         }
     }
 }
