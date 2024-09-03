@@ -1,5 +1,6 @@
 ﻿using GMSMAG.Core;
 using GMSMAG.Data.SqlOpreations;
+using GMSMAG.ViewModels.UserControls;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -69,13 +70,21 @@ namespace GMSMAG.ViewModels.Pages
                     await OnGetSubscriptionsTypesCount();
                     await OnGetExpiredSubscribers();
                 });
-
-                await Task.Delay(10000);
             }
-            catch (Exception)
+            catch (Exception er)
             {
+                
+                    var messageBox = new Wpf.Ui.Controls.MessageBox
+                    {
+                        Width = 300,
+                        Height = 150,
+                        Title = "Error",
+                        Content = er.Message.ToString(),
+                        CloseButtonText = "Ok"
+                    };
+                
+                    await messageBox.ShowDialogAsync();
 
-                throw;
             }
             finally
             {

@@ -82,7 +82,7 @@
                         <ui:Card Margin="10">
                             <StackPanel Orientation="Horizontal">
                                 <ui:Button Content="Check subscription" Icon="{ui:SymbolIcon PeopleCheckmark16}" Margin="0 0 10 0" />
-                                <ui:Button Content="Add subscriber" Icon="{ui:SymbolIcon Add12}" Margin="0 0 10 0" />
+                                <!--<ui:Button Content="Add subscriber" Icon="{ui:SymbolIcon Add12}" Margin="0 0 10 0"/>-->
                             </StackPanel>
                         </ui:Card>
                     </Grid>
