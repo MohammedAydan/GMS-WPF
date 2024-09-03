@@ -59,9 +59,8 @@ namespace GMSMAG
                 services.AddSingleton<DataViewModel>();
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<SettingsViewModel>();
-                services.AddSingleton<SubscribersPage>();
                 services.AddSingleton<SubscribersViewModel>();
-                services.AddSingleton<SubscribersView>();
+                services.AddSingleton<SubscribersPage>();
 
 
                 // DB Context

@@ -1,6 +1,7 @@
 ﻿using GMSMAG.ViewModels.Pages;
 using Wpf.Ui.Controls;
 using GMSMAG.Views.Windows;
+using GMSMAG.ViewModels.UserControls;
 
 namespace GMSMAG.Views.Pages
 {
@@ -14,12 +15,6 @@ namespace GMSMAG.Views.Pages
             DataContext = this;
 
             InitializeComponent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            var loginWindow = new LoginWindow();
-            loginWindow.Show();
         }
     }
 }
