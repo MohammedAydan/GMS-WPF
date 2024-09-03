@@ -1,44 +1,38 @@
 ﻿using GMSMAG.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using GMSMAG.Data;
-using Mysqlx.Crud;
 using System.Windows.Input;
 using Wpf.Ui.Controls;
-using GMSMAG.Views.Windows;
 using GMSMAG.Views.UserControls;
+using GMSMAG.Data;
+using GMSMAG.Views.Windows;
 
 namespace GMSMAG.ViewModels.UserControls
 {
     public class SubscribersViewModel : INotifyPropertyChanged
     {
         #region Fields
-        private MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
-        private IDataHelper<Subscriber> dataHelper;
-        private IDataHelper<SubscriptionsTypes> dataHelperForSTs;
-        private Subscriber subscriber;
-        private Subscriber selectedSubscriber;
-        private ObservableCollection<Subscriber> subscribers;
+        private readonly MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
+        private readonly IDataHelper<Subscriber> _dataHelper;
+        private readonly IDataHelper<SubscriptionsTypes> _dataHelperForSTs;
+        private Subscriber _subscriber;
+        private Subscriber _selectedSubscriber;
+        private List<Subscriber> _subscribers;
+        private string _searchText;
+        private string _colName = "0";
         #endregion
 
         #region Properties
         public int AdminId
         {
-            get
-            {
-                return subscriber.AdminId;
-            }
+            get => _subscriber.AdminId;
             set
             {
-                if (subscriber.AdminId != value)
+                if (_subscriber.AdminId != value)
                 {
-                    subscriber.AdminId = value == 0?1:value;
+                    _subscriber.AdminId = value == 0 ? 1 : value;
                     OnPropertyChanged(nameof(AdminId));
                 }
             }
@@ -46,15 +40,12 @@ namespace GMSMAG.ViewModels.UserControls
 
         public string FirstName
         {
-            get
-            {
-                return subscriber.FirstName;
-            }
+            get => _subscriber.FirstName;
             set
             {
-                if (subscriber.FirstName != value)
+                if (_subscriber.FirstName != value)
                 {
-                    subscriber.FirstName = value;
+                    _subscriber.FirstName = value;
                     OnPropertyChanged(nameof(FirstName));
                 }
             }
@@ -62,15 +53,12 @@ namespace GMSMAG.ViewModels.UserControls
 
         public string LastName
         {
-            get
-            {
-                return subscriber.LastName;
-            }
+            get => _subscriber.LastName;
             set
             {
-                if (subscriber.LastName != value)
+                if (_subscriber.LastName != value)
                 {
-                    subscriber.LastName = value;
+                    _subscriber.LastName = value;
                     OnPropertyChanged(nameof(LastName));
                 }
             }
@@ -78,15 +66,12 @@ namespace GMSMAG.ViewModels.UserControls
 
         public string PhoneNumber
         {
-            get
-            {
-                return subscriber.PhoneNumber;
-            }
+            get => _subscriber.PhoneNumber;
             set
             {
-                if (subscriber.PhoneNumber != value)
+                if (_subscriber.PhoneNumber != value)
                 {
-                    subscriber.PhoneNumber = value;
+                    _subscriber.PhoneNumber = value;
                     OnPropertyChanged(nameof(PhoneNumber));
                 }
             }
@@ -94,15 +79,12 @@ namespace GMSMAG.ViewModels.UserControls
 
         public string HomePhoneNumber
         {
-            get
-            {
-                return subscriber.HomePhoneNumber;
-            }
+            get => _subscriber.HomePhoneNumber;
             set
             {
-                if (subscriber.HomePhoneNumber != value)
+                if (_subscriber.HomePhoneNumber != value)
                 {
-                    subscriber.HomePhoneNumber = value;
+                    _subscriber.HomePhoneNumber = value;
                     OnPropertyChanged(nameof(HomePhoneNumber));
                 }
             }
@@ -110,15 +92,12 @@ namespace GMSMAG.ViewModels.UserControls
 
         public DateTime Birthday
         {
-            get
-            {
-                return subscriber.Birthday;
-            }
+            get => _subscriber.Birthday;
             set
             {
-                if (subscriber.Birthday != value)
+                if (_subscriber.Birthday != value)
                 {
-                    subscriber.Birthday = value;
+                    _subscriber.Birthday = value;
                     OnPropertyChanged(nameof(Birthday));
                 }
             }
@@ -126,31 +105,25 @@ namespace GMSMAG.ViewModels.UserControls
 
         public string Address
         {
-            get
-            {
-                return subscriber.Address;
-            }
+            get => _subscriber.Address;
             set
             {
-                if (subscriber.Address != value)
+                if (_subscriber.Address != value)
                 {
-                    subscriber.Address = value;
+                    _subscriber.Address = value;
                     OnPropertyChanged(nameof(Address));
                 }
             }
         }
 
-        public ICollection<Subscription> Subscriptions
+        public List<Subscription> Subscriptions
         {
-            get
-            {
-                return subscriber.Subscriptions;
-            }
+            get => _subscriber.Subscriptions.ToList();
             set
             {
-                if (subscriber.Subscriptions != value)
+                if (_subscriber.Subscriptions != value)
                 {
-                    subscriber.Subscriptions = value;
+                    _subscriber.Subscriptions = value;
                     OnPropertyChanged(nameof(Subscriptions));
                 }
             }
@@ -158,15 +131,12 @@ namespace GMSMAG.ViewModels.UserControls
 
         public DateTime? UpdatedAt
         {
-            get
-            {
-                return subscriber.UpdatedAt;
-            }
+            get => _subscriber.UpdatedAt;
             set
             {
-                if (subscriber.UpdatedAt != value)
+                if (_subscriber.UpdatedAt != value)
                 {
-                    subscriber.UpdatedAt = value;
+                    _subscriber.UpdatedAt = value;
                     OnPropertyChanged(nameof(UpdatedAt));
                 }
             }
@@ -174,202 +144,175 @@ namespace GMSMAG.ViewModels.UserControls
 
         public Subscriber SelectedSubscriber
         {
-            get
-            {
-                return selectedSubscriber;
-            }
+            get => _selectedSubscriber;
             set
             {
-                if (selectedSubscriber != value)
+                if (_selectedSubscriber != value)
                 {
-                    selectedSubscriber = value;
+                    _selectedSubscriber = value;
                     OnPropertyChanged(nameof(SelectedSubscriber));
+                    if (_selectedSubscriber != null) SetData();
                 }
             }
         }
 
-
-
-        public ObservableCollection<Subscriber> Subscribers
+        public string SearchText
         {
-            get
-            {
-                return subscribers;
-            }
+            get => _searchText;
             set
             {
-                if (subscribers != value)
+                if (_searchText != value)
                 {
-                    subscribers = value;
-                    OnPropertyChanged(nameof(subscribers));
+                    _searchText = value;
+                    OnPropertyChanged(nameof(SearchText));
+                }
+            }
+        }
+
+        public string ColName
+        {
+            get => _colName;
+            set
+            {
+                if (_colName != value)
+                {
+                    _colName = value ;
+                    OnPropertyChanged(nameof(ColName));
+                }
+            }
+        }
+
+        public List<Subscriber> Subscribers
+        {
+            get => _subscribers;
+            set
+            {
+                if (_subscribers != value)
+                {
+                    _subscribers = value;
+                    OnPropertyChanged(nameof(Subscribers));
                 }
             }
         }
         #endregion
 
+        #region Commands
         public ICommand AddCommand { get; }
         public ICommand EditCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand SaveCommand { get; }
-        public ICommand PrintCommand { get; }
+        public ICommand SearchCommand { get; }
+        public ICommand LoadCommand { get; }
+        #endregion
 
         public SubscribersViewModel()
         {
-            subscriber = new Subscriber();
-            subscribers = new ObservableCollection<Subscriber>();
-            dataHelper = App.GetService<IDataHelper<Subscriber>>();
-            dataHelperForSTs = App.GetService<IDataHelper<SubscriptionsTypes>>();
-            // LoadData
-            LoadData();
+            _subscriber = new Subscriber();
+            _subscribers = new List<Subscriber>();
+            _dataHelper = App.GetService<IDataHelper<Subscriber>>();
+            _dataHelperForSTs = App.GetService<IDataHelper<SubscriptionsTypes>>();
+
             AddCommand = new RelayCommand(AddData);
             EditCommand = new RelayCommand(EditData);
             SaveCommand = new RelayCommand(SaveData);
             DeleteCommand = new RelayCommand(DeleteData);
+            SearchCommand = new RelayCommand(SearchData);
+            LoadCommand = new RelayCommand(() => LoadData(1,50));
+
+            LoadData();
         }
 
         private async void DeleteData()
         {
-            if(selectedSubscriber == null)
+            if (_selectedSubscriber == null)
             {
-                var errorMessageBox = new Wpf.Ui.Controls.MessageBox
-                {
-                    Title = "Error",
-                    Content = "Please select a subscriber to delete.",
-                };
-                await errorMessageBox.ShowDialogAsync();
+                await ShowMessageBoxAsync("Error", "Please select a subscriber to delete.");
                 return;
             }
 
-            var messageBox = new Wpf.Ui.Controls.MessageBox
+            var res = await ShowConfirmationDialogAsync("Delete Subscriber", "Are you sure you want to delete this subscriber?");
+            if (res == ContentDialogResult.Primary)
             {
-                Title = "Delete Subscriber",
-                Content = "Are you sure you want to delete this subscriber?",
-                CloseButtonText = "No",
-                PrimaryButtonText = "Yes",
-                PrimaryButtonAppearance = ControlAppearance.Danger,
-            };
-
-            var res = await messageBox.ShowDialogAsync();
-
-            if (res == Wpf.Ui.Controls.MessageBoxResult.Primary)
-            {
-                if (selectedSubscriber != null)
-                {
-                    await dataHelper.DeleteAsync(selectedSubscriber.Id);
-                    LoadData();
-                }
+                await _dataHelper.DeleteAsync(_selectedSubscriber.Id);
+                LoadData();
             }
         }
 
-        private void SaveData()
+        private async void SaveData()
         {
-            if(selectedSubscriber != null)
+            if (_selectedSubscriber != null)
             {
-                Subscriber _subscriber = new Subscriber
-                {
-                    Id = selectedSubscriber.Id,
-                    AdminId = selectedSubscriber.AdminId,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    PhoneNumber = PhoneNumber,
-                    HomePhoneNumber = HomePhoneNumber,
-                    Birthday = Birthday,
-                    Address = Address,
-                    Subscriptions = Subscriptions,
-                    UpdatedAt = UpdatedAt
-                };
-                dataHelper.EditAsync(_subscriber);
+                await _dataHelper.EditAsync(_subscriber);
             }
             else
             {
-
-                Subscriber _subscriber = new Subscriber
-                {
-                    AdminId = AdminId,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    PhoneNumber = PhoneNumber,
-                    HomePhoneNumber = HomePhoneNumber,
-                    Birthday = Birthday,
-                    Address = Address,
-                    Subscriptions = Subscriptions,
-                    UpdatedAt = null
-                };
-                dataHelper.AddAsync(_subscriber);
+                await _dataHelper.AddAsync(_subscriber);
             }
             LoadData();
         }
 
         private async void EditData()
         {
-            if (selectedSubscriber != null)
+            if (_selectedSubscriber == null)
             {
-                SetData();
-                var subscriptionsTypes = await dataHelperForSTs.GetAllAsync();
-
-                var dialog = new ContentDialog
-                {
-                    DialogHost = _mainWindow.RootContentDialog,
-                    DataContext = this,
-                    Title = "Add Subscriber",
-                    Content = new AddSubscriber(this, subscriptionsTypes),
-                    PrimaryButtonText = "Save",
-                    DefaultButton = ContentDialogButton.Primary,
-                    CloseButtonText = "Close",
-                };
-
-                var res = await dialog.ShowAsync();
-                if (res == ContentDialogResult.Primary)
-                {
-                    SaveData();
-                }
+                await ShowMessageBoxAsync("Error", "Please select a subscriber to edit.");
+                return;
             }
-            else
+
+            var subscriptionsTypes = await _dataHelperForSTs.GetAllAsync();
+
+            var dialog = new ContentDialog
             {
-               var messageBox = new Wpf.Ui.Controls.MessageBox
-               {
-                   Title = "Error",
-                   Content = "Please select a subscriber to edit.",
-               };
-               await messageBox.ShowDialogAsync();
+                DialogHost = _mainWindow.RootContentDialog,
+                DataContext = this,
+                Title = "Edit Subscriber",
+                Content = new AddSubscriber(this, subscriptionsTypes),
+                PrimaryButtonText = "Save",
+                CloseButtonText = "Close",
+                DefaultButton = ContentDialogButton.Primary,
+            };
+
+            var res = await dialog.ShowAsync();
+            if (res == ContentDialogResult.Primary)
+            {
+                SaveData();
             }
-            
         }
 
         private void SetData()
         {
-            FirstName = selectedSubscriber.FirstName;
-            LastName = selectedSubscriber.LastName;
-            PhoneNumber = selectedSubscriber.PhoneNumber;
-            HomePhoneNumber = selectedSubscriber.HomePhoneNumber;
-            Birthday = selectedSubscriber.Birthday;
-            Address = selectedSubscriber.Address;
-            Subscriptions = selectedSubscriber.Subscriptions;
-            UpdatedAt = selectedSubscriber.UpdatedAt;
+            AdminId = _selectedSubscriber.AdminId;
+            FirstName = _selectedSubscriber.FirstName;
+            LastName = _selectedSubscriber.LastName;
+            PhoneNumber = _selectedSubscriber.PhoneNumber;
+            HomePhoneNumber = _selectedSubscriber.HomePhoneNumber;
+            Birthday = _selectedSubscriber.Birthday;
+            Address = _selectedSubscriber.Address;
+            Subscriptions = new List<Subscription>(_selectedSubscriber.Subscriptions);
+            UpdatedAt = _selectedSubscriber.UpdatedAt;
         }
 
         private async void AddData()
         {
             ClearData();
-            var subscriptionsTypes = await dataHelperForSTs.GetAllAsync();
+            var subscriptionsTypes = await _dataHelperForSTs.GetAllAsync();
 
             var dialog = new ContentDialog
             {
                 DialogHost = _mainWindow.RootContentDialog,
                 DataContext = this,
                 Title = "Add Subscriber",
-                Content = new AddSubscriber(this,subscriptionsTypes),
+                Content = new AddSubscriber(this, subscriptionsTypes),
                 PrimaryButtonText = "Add",
-                DefaultButton = ContentDialogButton.Primary,
                 CloseButtonText = "Close",
+                DefaultButton = ContentDialogButton.Primary,
             };
 
-            var res =  await dialog.ShowAsync();
+            var res = await dialog.ShowAsync();
             if (res == ContentDialogResult.Primary)
             {
                 SaveData();
             }
-
         }
 
         private void ClearData()
@@ -381,17 +324,44 @@ namespace GMSMAG.ViewModels.UserControls
             HomePhoneNumber = string.Empty;
             Birthday = DateTime.Now;
             Address = string.Empty;
-            Subscriptions = new ObservableCollection<Subscription>();
+            Subscriptions = new List<Subscription>();
             UpdatedAt = null;
         }
 
-        private async void LoadData(int Page = 1,int Limit = 50)
+        private async void LoadData(int page = 1, int limit = 50)
         {
-            subscribers.Clear();
-            foreach (Subscriber item in (await dataHelper.GetAllAsync(Page,Limit)))
+            var items = await _dataHelper.GetAllAsync(page, limit);
+            Subscribers = new List<Subscriber>(items);
+        }
+
+        private async void SearchData()
+        {
+            var items = await _dataHelper.SearchAsync(_searchText, _colName);
+            Subscribers = new List<Subscriber>(items);
+        }
+
+        private async Task ShowMessageBoxAsync(string title, string content)
+        {
+            var messageBox = new Wpf.Ui.Controls.MessageBox
             {
-                subscribers.Add(item);
-            }
+                Title = title,
+                Content = content,
+            };
+            await messageBox.ShowDialogAsync();
+        }
+
+        private async Task<ContentDialogResult> ShowConfirmationDialogAsync(string title, string content)
+        {
+            var messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = title,
+                Content = content,
+                CloseButtonText = "No",
+                PrimaryButtonText = "Yes",
+                PrimaryButtonAppearance = ControlAppearance.Danger,
+            };
+
+            return (ContentDialogResult)await messageBox.ShowDialogAsync();
         }
 
         // PropertyChanged event

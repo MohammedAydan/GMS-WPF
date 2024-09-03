@@ -120,7 +120,7 @@ namespace GMSMAG.Data
                     "LastName" => query.Where(s => EF.Functions.Like(s.LastName, $"%{searchTerm}%")),
                     "PhoneNumber" => query.Where(s => s.Equals(searchTerm)),
                     "HomePhoneNumber" => query.Where(s => s.Equals(searchTerm)),
-                    _ => query.Where(s => EF.Functions.Like(s.Id.ToString(), $"%{searchTerm}%")),
+                    _ => query.Where(s => s.Id.ToString() == searchTerm),
                 };
 
                 return await query

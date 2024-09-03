@@ -4,6 +4,7 @@ using GMSMAG.Data.SqlOpreations;
 using GMSMAG.Models;
 using GMSMAG.Services;
 using GMSMAG.ViewModels.Pages;
+using GMSMAG.ViewModels.UserControls;
 using GMSMAG.ViewModels.Windows;
 using GMSMAG.Views.Pages;
 using GMSMAG.Views.Windows;
@@ -65,6 +66,7 @@ namespace GMSMAG
                 // Sql Opreations
                 services.AddScoped<IDataHelper<Subscriber>,SubscribersEntity>();
                 services.AddScoped<IDataHelper<SubscriptionsTypes>,SubscriptionsTypesEntity>();
+                services.AddSingleton<SubscribersViewModel>();
             }).Build();
 
         /// <summary>
