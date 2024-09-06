@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
 
         <!-- Loading Indicator -->
-        <Border Grid.Row="0" Visibility="{Binding ViewModel.IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Border Grid.Row="0" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
             <ProgressBar IsIndeterminate="True" />
         </Border>
 
@@ -36,16 +36,19 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <ui:Button Icon="{ui:SymbolIcon ArrowClockwise12}" Width="35" Height="35" Margin="0 0 10 0" Click="ReloadButton_Click"/>
                 <ui:TextBox Width="200" VerticalAlignment="Center"
-                            Text="{Binding ViewModel.SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                             PlaceholderText="Search subscriptions..." />
                 <ComboBox Width="120" VerticalAlignment="Center"
                           x:Name="searchComboBox"
-                          SelectedValue="{Binding ViewModel.ColName, Mode=TwoWay}"
+                          SelectedValue="{Binding ColName, Mode=TwoWay}"
                           Margin="5,0,0,0">
-                    <!-- Define ComboBox items here if needed -->
+                    <!-- Add ComboBox items here -->
+                    <ComboBoxItem Content="Id" />
+                    <ComboBoxItem Content="Subscription Name" />
+                    <ComboBoxItem Content="Price" />
                 </ComboBox>
                 <ui:Button Content="Search"
-                           Command="{Binding ViewModel.SearchDataCommand}"
+                           Command="{Binding SearchDataCommand}"
                            VerticalAlignment="Center"
                            Margin="10,0,0,0"
                            Height="35" />
@@ -53,15 +56,14 @@
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <ui:Button Background="Transparent" Icon="{ui:SymbolIcon Add12}" Content="Add" Command="{Binding AddDataCommand}" Height="35" Margin="0,0,5,0"/>
-                <!--<ui:Button Background="Transparent" Icon="{ui:SymbolIcon Print20}" Content="Print" Click="PrintDataGrid" Height="35" Margin="0,0,5,0"/>-->
             </StackPanel>
         </Grid>
 
         <!-- Subscribers DataGrid -->
         <ui:DataGrid Grid.Row="2" Margin="10"
                      x:Name="dataGrid"
-                     ItemsSource="{Binding ViewModel.Subscriptions}"
-                     SelectedItem="{Binding ViewModel.SelectedSubscription}"
+                     ItemsSource="{Binding Subscriptions}"
+                     SelectedItem="{Binding SelectedSubscription}"
                      SelectionMode="Single"
                      SelectionUnit="FullRow"
                      GridLinesVisibility="All"
@@ -117,11 +119,11 @@
                 <DataGridTextColumn Header="Admin Id" Binding="{Binding AdminId}" Width="*" />
                 <DataGridTextColumn Header="Subscriber Id" Binding="{Binding SubscriberId}" Width="*" />
                 <DataGridTextColumn Header="Subscription Type Id" Binding="{Binding SubscriptionTypeId}" Width="*" />
-                <DataGridTextColumn Header="Start Data" Binding="{Binding StartDate}" Width="*" />
-                <DataGridTextColumn Header="End Data" Binding="{Binding EndDate}" Width="*" />
-                <DataGridTextColumn Header="CreateAt" Binding="{Binding CreatedAt}" Width="*" />
+                <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate}" Width="*" />
+                <DataGridTextColumn Header="End Date" Binding="{Binding EndDate}" Width="*" />
+                <DataGridTextColumn Header="CreatedAt" Binding="{Binding CreatedAt}" Width="*" />
 
-                <!-- Edit Button Column -->
+                <!-- Edit/Delete Button Column -->
                 <DataGridTemplateColumn Width="180">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

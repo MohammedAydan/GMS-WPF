@@ -1,18 +1,7 @@
 ﻿using GMSMAG.ViewModels.Pages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Wpf.Ui.Controls;
 
 namespace GMSMAG.Views.Pages
@@ -27,16 +16,15 @@ namespace GMSMAG.Views.Pages
         public SubscriptionsTypesPage(SubscriptionsTypesViewModel viewModel)
         {
             ViewModel = viewModel;
-            DataContext = this;
+            DataContext = viewModel;
             InitializeComponent();
             InitSearchComboBox();
         }
 
-
         private void InitSearchComboBox()
         {
             searchComboBox.Items.Clear();
-            searchComboBox.Items.Add(new { Id = "Id", Name = "Id" });
+            searchComboBox.Items.Add(new { Id = "Id", Name = "ID" });
             searchComboBox.Items.Add(new { Id = "SubscriptionName", Name = "Subscription Name" });
             searchComboBox.Items.Add(new { Id = "Price", Name = "Price" });
             searchComboBox.DisplayMemberPath = "Name";
@@ -46,7 +34,7 @@ namespace GMSMAG.Views.Pages
 
         private void ReloadButton_Click(object sender, RoutedEventArgs e)
         {
-            Task.Run(async () => await ViewModel.LoadData(1,50));
+            Task.Run(async () => await ViewModel.LoadDataCommand.ExecuteAsync(1));
         }
     }
 }

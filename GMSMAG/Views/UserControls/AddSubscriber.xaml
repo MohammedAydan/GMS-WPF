@@ -9,7 +9,7 @@
           ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
           ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-             d:DesignHeight="400" d:DesignWidth="380">
+             >
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <ui:TextBox Width="360" PlaceholderText="Enter first name" Margin="0 0 0 0" Text="{Binding FirstName}"/>

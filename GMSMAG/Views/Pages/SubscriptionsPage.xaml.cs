@@ -1,18 +1,9 @@
 ﻿using GMSMAG.ViewModels.Pages;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Wpf.Ui.Controls;
 
 namespace GMSMAG.Views.Pages
@@ -24,25 +15,37 @@ namespace GMSMAG.Views.Pages
         public SubscriptionsPage(SubscriptionsViewModel viewModel)
         {
             ViewModel = viewModel;
-            DataContext = this;
+            DataContext = viewModel;
             InitializeComponent();
             InitSearchComboBox();
         }
 
         private void InitSearchComboBox()
         {
+            var searchOptions = new ObservableCollection<object>
+            {
+                new { Id = "Id", Name = "Id" },
+                new { Id = "SubscriberId", Name = "Subscriber Id" },
+                new { Id = "SubscriptionTypeId", Name = "Subscription Type Id" }
+            };
+
             searchComboBox.Items.Clear();
-            searchComboBox.Items.Add(new { Id = "Id", Name = "Id" });
-            searchComboBox.Items.Add(new { Id = "SubscriberId", Name = "Subscriber Id" });
-            searchComboBox.Items.Add(new { Id = "SubscriptionTypeId", Name = "Subscription Type Id" });
+            searchComboBox.ItemsSource = searchOptions;
             searchComboBox.DisplayMemberPath = "Name";
             searchComboBox.SelectedValuePath = "Id";
             searchComboBox.SelectedIndex = 0;
         }
 
-        private void ReloadButton_Click(object sender, RoutedEventArgs e)
+        private async void ReloadButton_Click(object sender, RoutedEventArgs e)
         {
-            Task.Run(async () =>await ViewModel.Load(1,50));
+            try
+            {
+                await ViewModel.LoadSubscriptionsCommand.ExecuteAsync(1);
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show($"Error reloading data: {ex.Message}");
+            }
         }
     }
 }
