@@ -20,15 +20,27 @@ namespace GMSMAG.ViewModels.Windows
             new NavigationViewItem()
             {
                 Content = "Subscribers",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.People24 },
+                Icon = new SymbolIcon { Symbol = SymbolRegular.PeopleCommunity20 },
                 TargetPageType = typeof(Views.Pages.SubscribersPage)
             },
             new NavigationViewItem()
             {
-                Content = "Data",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.DataHistogram24 },
-                TargetPageType = typeof(Views.Pages.DataPage)
-            }
+                Content = "Subscriptions",
+                Icon = new SymbolIcon { Symbol = SymbolRegular.PeopleCheckmark16 },
+                TargetPageType = typeof(Views.Pages.SubscriptionsPage)
+            },
+            new NavigationViewItem()
+            {
+                Content = "Subscriptions Types",
+                Icon = new SymbolIcon { Symbol = SymbolRegular.DocumentRibbon16 },
+                TargetPageType = typeof(Views.Pages.SubscriptionsTypesPage)
+            },
+            //new NavigationViewItem()
+            //{
+            //    Content = "Data",
+            //    Icon = new SymbolIcon { Symbol = SymbolRegular.DataHistogram24 },
+            //    TargetPageType = typeof(Views.Pages.DataPage)
+            //}
         };
 
         [ObservableProperty]

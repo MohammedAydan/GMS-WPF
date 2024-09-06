@@ -2,6 +2,7 @@
 using Wpf.Ui.Controls;
 using GMSMAG.Views.Windows;
 using GMSMAG.ViewModels.UserControls;
+using System.Windows.Controls;
 
 namespace GMSMAG.Views.Pages
 {

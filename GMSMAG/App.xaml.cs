@@ -61,6 +61,11 @@ namespace GMSMAG
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<SubscribersViewModel>();
                 services.AddSingleton<SubscribersPage>();
+                //
+                services.AddSingleton<SubscriptionsViewModel>();
+                services.AddSingleton<SubscriptionsPage>();
+                services.AddSingleton<SubscriptionsTypesViewModel>();
+                services.AddSingleton<SubscriptionsTypesPage>();
 
 
                 // DB Context
@@ -68,8 +73,10 @@ namespace GMSMAG
 
                 // Sql Opreations
                 services.AddScoped<IDataHelper<Subscriber>,SubscribersEntity>();
-                services.AddScoped<IDataHelper<SubscriptionsTypes>,SubscriptionsTypesEntity>();
+                services.AddScoped<IDataHelper<Subscription>,SubscriptionsEntity>();
+                services.AddScoped<IDataHelper<SubscriptionType>,SubscriptionsTypesEntity>();
                 services.AddScoped<IDashboardEntity, DashboardEntity>();
+                services.AddScoped<PrintViewModel>();
 
             }).Build();
 

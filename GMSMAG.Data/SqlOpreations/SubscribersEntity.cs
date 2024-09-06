@@ -1,25 +1,23 @@
 ﻿using GMSMAG.Core.Data;
 using GMSMAG.Models;
 using Microsoft.EntityFrameworkCore;
-using MySql.EntityFrameworkCore.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace GMSMAG.Data
 {
     public class SubscribersEntity : IDataHelper<Subscriber>
     {
-        private AppDbContext _dbContext;
+        private readonly AppDbContext _dbContext;
 
         public SubscribersEntity(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        // Add a new subscriber to the database
+        // Add a new subscriber
         public async Task AddAsync(Subscriber subscriber)
         {
             try
@@ -29,17 +27,32 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Handle the exception or log it
-                throw new Exception("An error occurred while adding the subscriber.", ex);
+                // Log error (ex.Message)
+                throw new Exception("Error adding subscriber", ex);
             }
         }
 
-        // Delete a subscriber by Id
-        public async Task DeleteAsync(int Id)
+        // Bulk Add for better performance with large data
+        public async Task AddBulkAsync(List<Subscriber> subscribers)
         {
             try
             {
-                var subscriber = await _dbContext.Subscribers.FindAsync(Id);
+                await _dbContext.Subscribers.AddRangeAsync(subscribers);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log error (ex.Message)
+                throw new Exception("Error adding subscribers in bulk", ex);
+            }
+        }
+
+        // Delete a subscriber by ID
+        public async Task DeleteAsync(int id)
+        {
+            try
+            {
+                var subscriber = await _dbContext.Subscribers.FindAsync(id);
                 if (subscriber != null)
                 {
                     _dbContext.Subscribers.Remove(subscriber);
@@ -47,13 +60,39 @@ namespace GMSMAG.Data
                 }
                 else
                 {
-                    throw new KeyNotFoundException("Subscriber not found.");
+                    throw new KeyNotFoundException("Subscriber not found");
                 }
             }
             catch (Exception ex)
             {
-                // Handle the exception or log it
-                throw new Exception("An error occurred while deleting the subscriber.", ex);
+                // Log error (ex.Message)
+                throw new Exception("Error deleting subscriber", ex);
+            }
+        }
+
+        // Bulk Delete for large data
+        public async Task DeleteBulkAsync(List<int> ids)
+        {
+            try
+            {
+                var subscribers = await _dbContext.Subscribers
+                    .Where(s => ids.Contains(s.Id))
+                    .ToListAsync();
+
+                if (subscribers.Any())
+                {
+                    _dbContext.Subscribers.RemoveRange(subscribers);
+                    await _dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new KeyNotFoundException("No subscribers found for the provided IDs");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error (ex.Message)
+                throw new Exception("Error deleting subscribers in bulk", ex);
             }
         }
 
@@ -67,23 +106,29 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Handle the exception or log it
-                throw new Exception("An error occurred while updating the subscriber.", ex);
+                // Log error (ex.Message)
+                throw new Exception("Error editing subscriber", ex);
             }
         }
 
-        // Find a subscriber by Id
-        public async Task<Subscriber> FindAsync(int Id)
+        // Find subscriber by ID
+        public async Task<Subscriber> FindAsync(int id)
         {
             try
             {
-                return await _dbContext.Subscribers.FindAsync(Id)
-                    ?? throw new KeyNotFoundException("Subscriber not found.");
+                var subscriber = await _dbContext.Subscribers
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.Id == id);
+
+                if (subscriber == null)
+                    throw new KeyNotFoundException("Subscriber not found");
+
+                return subscriber;
             }
             catch (Exception ex)
             {
-                // Handle the exception or log it
-                throw new Exception("An error occurred while finding the subscriber.", ex);
+                // Log error (ex.Message)
+                throw new Exception("Error finding subscriber", ex);
             }
         }
 
@@ -100,38 +145,33 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Handle the exception or log it
-                throw new Exception("An error occurred while retrieving subscribers.", ex);
+                // Log error (ex.Message)
+                throw new Exception("Error retrieving subscribers", ex);
             }
         }
 
-        // Search for subscribers based on a search term with dynamic column selection
-        public async Task<List<Subscriber>> SearchAsync(string searchTerm, string colName = "Id", int page = 1, int limit = 50)
+        // Search subscribers with dynamic column selection and paging
+        public async Task<List<Subscriber>> SearchAsync(string term, string colName = "Id", int page = 1, int limit = 50)
         {
             try
             {
-                IQueryable<Subscriber> query = _dbContext.Subscribers.AsNoTracking();
+                var query = _dbContext.Subscribers.AsQueryable();
 
-                // Dynamically select the column to search by
-                query = colName switch
-                {
-                    "Id" => query.Where(s => s.Equals(searchTerm)),
-                    "FirstName" => query.Where(s => EF.Functions.Like(s.FirstName, $"%{searchTerm}%")),
-                    "LastName" => query.Where(s => EF.Functions.Like(s.LastName, $"%{searchTerm}%")),
-                    "PhoneNumber" => query.Where(s => s.Equals(searchTerm)),
-                    "HomePhoneNumber" => query.Where(s => s.Equals(searchTerm)),
-                    _ => query.Where(s => s.Id.ToString() == searchTerm),
-                };
+                if (colName == "Id")
+                    query = query.Where(s => s.Id.ToString().Equals(term));
+                else
+                    query = query.Where(s => EF.Property<string>(s, colName).Contains(term));
 
                 return await query
+                    .AsNoTracking()
                     .Skip((page - 1) * limit)
                     .Take(limit)
                     .ToListAsync();
             }
             catch (Exception ex)
             {
-                // Handle the exception or log it
-                throw new Exception("An error occurred while searching for subscribers.", ex);
+                // Log error (ex.Message)
+                throw new Exception("Error searching subscribers", ex);
             }
         }
     }

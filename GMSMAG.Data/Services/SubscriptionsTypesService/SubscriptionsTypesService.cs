@@ -17,7 +17,7 @@ namespace GMSMAG.Services.SubscriptionsTypesService
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<SubscriptionsTypes> AddSubscriptionsTypeAsync(SubscriptionsTypes subscriptionsType)
+        public async Task<SubscriptionType> AddSubscriptionsTypeAsync(SubscriptionType subscriptionsType)
         {
             if (subscriptionsType == null)
                 throw new ArgumentNullException(nameof(subscriptionsType));
@@ -37,12 +37,12 @@ namespace GMSMAG.Services.SubscriptionsTypesService
             }
         }
 
-        public async Task<SubscriptionsTypes?> GetSubscriptionsTypeAsync(int id)
+        public async Task<SubscriptionType?> GetSubscriptionsTypeAsync(int id)
         {
             return await _context.SubscriptionsTypes.FindAsync(id);
         }
 
-        public async Task<IEnumerable<SubscriptionsTypes>> GetSubscriptionsTypesAsync(int page = 1, int limit = 30)
+        public async Task<IEnumerable<SubscriptionType>> GetSubscriptionsTypesAsync(int page = 1, int limit = 30)
         {
             return await _context.SubscriptionsTypes
                 .OrderBy(st => st.Id)
@@ -51,7 +51,7 @@ namespace GMSMAG.Services.SubscriptionsTypesService
                 .ToListAsync();
         }
 
-        public async Task<SubscriptionsTypes> UpdateSubscriptionsTypeAsync(SubscriptionsTypes subscriptionsType)
+        public async Task<SubscriptionType> UpdateSubscriptionsTypeAsync(SubscriptionType subscriptionsType)
         {
             if (subscriptionsType == null)
                 throw new ArgumentNullException(nameof(subscriptionsType));
