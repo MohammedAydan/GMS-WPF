@@ -20,7 +20,7 @@ namespace GMSMAG.Models
         public virtual Subscriber Subscriber { get; set; }
 
         public int SubscriptionTypeId { get; set; }
-        public virtual SubscriptionsTypes SubscriptionsTypes { get; set; }
+        public virtual SubscriptionType SubscriptionsTypes { get; set; }
 
         public DateTime StartDate { get; set; } = DateTime.UtcNow;
 

@@ -17,7 +17,7 @@ namespace GMSMAG.ViewModels.UserControls
         #region Fields
         private readonly MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
         private readonly IDataHelper<Subscriber> _dataHelper;
-        private readonly IDataHelper<SubscriptionsTypes> _dataHelperForSTs;
+        private readonly IDataHelper<SubscriptionType> _dataHelperForSTs;
         private Subscriber _subscriber;
         private Subscriber _selectedSubscriber;
         private List<Subscriber> _subscribers;
@@ -223,7 +223,7 @@ namespace GMSMAG.ViewModels.UserControls
         public ICommand LoadDataCommand { get; }
         #endregion
 
-        public SubscribersViewModel(IDataHelper<Subscriber> dataHelper, IDataHelper<SubscriptionsTypes> dataHelperForSTs)
+        public SubscribersViewModel(IDataHelper<Subscriber> dataHelper, IDataHelper<SubscriptionType> dataHelperForSTs)
         {
             _subscriber = new Subscriber();
             _subscribers = new List<Subscriber>();
@@ -367,8 +367,20 @@ namespace GMSMAG.ViewModels.UserControls
 
         private async Task SearchData()
         {
-            var items = await _dataHelper.SearchAsync(_searchText, _colName);
-            Subscribers = new List<Subscriber>(items);
+            IsLoading = true;
+            try
+            {
+                var items = await _dataHelper.SearchAsync(_searchText, _colName);
+                Subscribers = new List<Subscriber>(items);
+            }
+            catch (Exception ex)
+            {
+                await ShowMessageBoxAsync("Error",ex.Message);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task ShowMessageBoxAsync(string title, string content)

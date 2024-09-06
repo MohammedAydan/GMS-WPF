@@ -7,7 +7,7 @@ using System.Text.Json.Nodes;
 
 namespace GMSMAG.Models
 {
-    public class SubscriptionsTypes
+    public class SubscriptionType
     {
         [Key]
         public int Id { get; set; }

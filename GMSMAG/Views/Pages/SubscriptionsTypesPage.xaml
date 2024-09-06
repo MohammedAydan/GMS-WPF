@@ -1,4 +1,4 @@
-﻿<Page x:Class="GMSMAG.Views.Pages.SubscribersPage"
+﻿<Page x:Class="GMSMAG.Views.Pages.SubscriptionsTypesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -11,8 +11,8 @@
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-
-      Title="SubscribersPage" x:Name="RootTest">
+      d:DataContext="{d:DesignInstance local:SubscriptionsTypesPage,IsDesignTimeCreatable=False}"
+      Title="SubscriptionsTypesPage">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -22,36 +22,37 @@
         </Grid.RowDefinitions>
 
         <!-- Loading Indicator -->
-        <Border Grid.Row="0" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Border Grid.Row="0" Visibility="{Binding ViewModel.IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
             <ProgressBar IsIndeterminate="True" />
         </Border>
-        
+
         <!-- Search Bar -->
         <Grid Grid.Row="1" Margin="10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="179*" />
+                <ColumnDefinition Width="524*"/>
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <ui:Button Icon="{ui:SymbolIcon ArrowClockwise12}" Width="35" Height="35" Margin="0 0 10 0" Click="Button_Click"/>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Grid.ColumnSpan="2">
+                <ui:Button Icon="{ui:SymbolIcon ArrowClockwise12}" Width="35" Height="35" Margin="0 0 10 0" Click="ReloadButton_Click"/>
                 <ui:TextBox Width="200" VerticalAlignment="Center"
-                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                            PlaceholderText="Search subscribers..." />
+                            Text="{Binding ViewModel.SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="Search subscriptions types..." />
                 <ComboBox Width="120" VerticalAlignment="Center"
                           x:Name="searchComboBox"
-                          SelectedValue="{Binding ColName, Mode=TwoWay}"
+                          SelectedValue="{Binding ViewModel.ColName, Mode=TwoWay}"
                           Margin="5,0,0,0">
                     <!-- Define ComboBox items here if needed -->
                 </ComboBox>
                 <ui:Button Content="Search"
-                           Command="{Binding SearchDataCommand}"
+                           Command="{Binding ViewModel.SearchDataCommand}"
                            VerticalAlignment="Center"
                            Margin="10,0,0,0"
                            Height="35" />
             </StackPanel>
 
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center">
                 <ui:Button Background="Transparent" Icon="{ui:SymbolIcon Add12}" Content="Add" Command="{Binding AddDataCommand}" Height="35" Margin="0,0,5,0"/>
                 <!--<ui:Button Background="Transparent" Icon="{ui:SymbolIcon Print20}" Content="Print" Click="PrintDataGrid" Height="35" Margin="0,0,5,0"/>-->
             </StackPanel>
@@ -60,8 +61,8 @@
         <!-- Subscribers DataGrid -->
         <ui:DataGrid Grid.Row="2" Margin="10"
                      x:Name="dataGrid"
-                     ItemsSource="{Binding Subscribers}"
-                     SelectedItem="{Binding SelectedSubscriber}"
+                     ItemsSource="{Binding ViewModel.SubscriptionsTypes}"
+                     SelectedItem="{Binding ViewModel.SubscriptionType}"
                      SelectionMode="Single"
                      SelectionUnit="FullRow"
                      GridLinesVisibility="All"
@@ -114,10 +115,13 @@
             <!-- Define Columns -->
             <ui:DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*" />
-                <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="*" />
-                <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="*" />
-                <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="*" />
-                <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="2*" />
+                <DataGridTextColumn Header="Admin Id" Binding="{Binding AdminId}" Width="*" />
+                <DataGridTextColumn Header="Name" Binding="{Binding SubscriptionName}" Width="*" />
+                <DataGridTextColumn Header="Price" Binding="{Binding Price}" Width="2*" />
+                <DataGridTextColumn Header="Description" Binding="{Binding SubscriptionDescription}" Width="2*" />
+                <DataGridTextColumn Header="Features" Binding="{Binding SubscriptionFeatures}" Width="2*" />
+                <DataGridTextColumn Header="Duration In Days" Binding="{Binding DurationInDays}" Width="2*" />
+                <DataGridTextColumn Header="CreatedAt" Binding="{Binding CreatedAt}" Width="2*" />
 
                 <!-- Edit Button Column -->
                 <DataGridTemplateColumn Width="180">

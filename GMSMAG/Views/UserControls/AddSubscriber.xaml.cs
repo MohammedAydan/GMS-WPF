@@ -22,7 +22,7 @@ namespace GMSMAG.Views.UserControls
     /// </summary>
     public partial class AddSubscriber : UserControl
     {
-        public AddSubscriber(SubscribersViewModel subscribersViewModel,List<SubscriptionsTypes> subscriptionsTypes)
+        public AddSubscriber(SubscribersViewModel subscribersViewModel,List<SubscriptionType> subscriptionsTypes)
         {
             InitializeComponent();
             DataContext = subscribersViewModel;

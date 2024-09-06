@@ -1,15 +1,13 @@
-﻿using GMSMAG.ViewModels.UserControls;
-using GMSMAG.ViewModels.Windows;
-using GMSMAG.Views.UserControls;
-using GMSMAG.Views.Windows;
-using Mysqlx.Crud;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Windows;
+﻿using System;
+using System.Data;
+using System.Data.OleDb;
+using System.Drawing;
 using System.Windows.Controls;
-using System.Windows.Input;
-using Wpf.Ui;
+using System.Windows.Media;
+using GMSMAG.Data;
+using GMSMAG.Models;
+using GMSMAG.ViewModels.Pages;
+using GMSMAG.ViewModels.UserControls;
 using Wpf.Ui.Controls;
 
 namespace GMSMAG.Views.Pages
@@ -17,17 +15,19 @@ namespace GMSMAG.Views.Pages
     public partial class SubscribersPage : INavigableView<SubscribersViewModel>
     {
         public SubscribersViewModel ViewModel { get; }
+        private PrintViewModel _printViewModel;
 
         public SubscribersPage(SubscribersViewModel viewModel)
         {
+            _printViewModel = new PrintViewModel();
             ViewModel = viewModel;
             DataContext = viewModel;
             InitializeComponent();
 
-            initSItemForSearchComboBox();
+            InitSearchComboBox();
         }
 
-        private void initSItemForSearchComboBox()
+        private void InitSearchComboBox()
         {
             searchComboBox.Items.Clear();
             searchComboBox.Items.Add(new { Id = "Id", Name = "Id" });
@@ -40,9 +40,15 @@ namespace GMSMAG.Views.Pages
             searchComboBox.SelectedIndex = 0;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            Task.Run(() => ViewModel.LoadData());
+            await Task.Run(() => ViewModel.LoadData());
         }
+
+        private async void PrintDataGrid(object sender, RoutedEventArgs e)
+        {
+            await Task.Run(async() => await _printViewModel.GenerateAndSavePdfAsync(dataGrid,"D:\\Downloads\\GMS-REPORT-PDF.pdf"));
+        }
+
     }
 }

@@ -21,6 +21,6 @@ namespace GMSMAG.Core.Data
         public virtual DbSet<Admin> Admins { get; set; }
         public virtual DbSet<Subscriber> Subscribers { get; set; }
         public virtual DbSet<Subscription> Subscriptions { get; set; }
-        public virtual DbSet<SubscriptionsTypes> SubscriptionsTypes { get; set; }
+        public virtual DbSet<SubscriptionType> SubscriptionsTypes { get; set; }
     }
 }
