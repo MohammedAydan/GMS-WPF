@@ -17,7 +17,8 @@ namespace GMSMAG.ViewModels.Pages
         public SubscriptionsViewModel(IDataHelper<Subscription> dataHelper)
         {
             _dataHelper = dataHelper;
-            LoadSubscriptionsAsync();
+            // Optionally load initial data
+            // LoadSubscriptionsAsync();
         }
 
         [ObservableProperty] private Subscription subscription = new Subscription();
@@ -175,3 +176,4 @@ namespace GMSMAG.ViewModels.Pages
         }
     }
 }
+//Wpf.Ui.Controls.

@@ -2,6 +2,9 @@
 using GMSMAG.Models;
 using GMSMAG.Views.UserControls;
 using GMSMAG.Views.Windows;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Wpf.Ui.Controls;
 
 namespace GMSMAG.ViewModels.Pages
@@ -14,7 +17,8 @@ namespace GMSMAG.ViewModels.Pages
         public SubscriptionsTypesViewModel(IDataHelper<SubscriptionType> dataHelper)
         {
             _dataHelper = dataHelper;
-            Task.Run(async () => await LoadData(1));
+            // Optionally load initial data
+            // Task.Run(async () => await LoadData(1));
         }
 
         [ObservableProperty]
@@ -24,7 +28,7 @@ namespace GMSMAG.ViewModels.Pages
         private SubscriptionType selectedSubscriptionType;
 
         [ObservableProperty]
-        private List<SubscriptionType> subscriptionsTypes;
+        private List<SubscriptionType> subscriptionsTypes = new List<SubscriptionType>();
 
         [ObservableProperty]
         private bool isLoading;
@@ -39,13 +43,11 @@ namespace GMSMAG.ViewModels.Pages
         public async Task LoadData(int page = 1)
         {
             IsLoading = true;
-
             try
             {
-                var res = await _dataHelper.GetAllAsync(page, 50);
-                SubscriptionsTypes = res;
+                SubscriptionsTypes = await _dataHelper.GetAllAsync(page, 50);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 await ShowMessageBoxAsync("Error", ex.Message);
             }
@@ -64,7 +66,7 @@ namespace GMSMAG.ViewModels.Pages
                 var items = await _dataHelper.SearchAsync(SearchText, ColName);
                 SubscriptionsTypes = new List<SubscriptionType>(items);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 await ShowMessageBoxAsync("Error", ex.Message);
             }
@@ -101,19 +103,9 @@ namespace GMSMAG.ViewModels.Pages
                 CreatedAt = SelectedSubscriptionType.CreatedAt
             };
 
-            var dialog = new ContentDialog
-            {
-                DialogHost = _mainWindow.RootContentDialog,
-                DataContext = this,
-                Title = "Edit Subscription Type",
-                Content = new ManageSubscriptionType(this),
-                PrimaryButtonText = "Save",
-                CloseButtonText = "Close",
-                DefaultButton = ContentDialogButton.Primary,
-            };
-
-            var res = await dialog.ShowAsync();
-            if (res == ContentDialogResult.Primary)
+            var dialog = CreateDialog("Edit Subscription Type", "Save");
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
             {
                 await SaveData();
             }
@@ -124,38 +116,12 @@ namespace GMSMAG.ViewModels.Pages
         {
             SubscriptionType = new SubscriptionType();
 
-            var dialog = new ContentDialog
-            {
-                DialogHost = _mainWindow.RootContentDialog,
-                DataContext = this,
-                Title = "Add Subscription Type",
-                Content = new ManageSubscriptionType(this),
-                PrimaryButtonText = "Add",
-                CloseButtonText = "Close",
-                DefaultButton = ContentDialogButton.Primary,
-            };
-
-            var res = await dialog.ShowAsync();
-            if (res == ContentDialogResult.Primary)
+            var dialog = CreateDialog("Add Subscription Type", "Add");
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
             {
                 await SaveData();
             }
-        }
-
-        private async Task SaveData()
-        {
-            if (SubscriptionType == null) return;
-
-            if (SelectedSubscriptionType != null)
-            {
-                await _dataHelper.EditAsync(SubscriptionType);
-            }
-            else
-            {
-                await _dataHelper.AddAsync(SubscriptionType);
-            }
-
-            await LoadData();
         }
 
         [RelayCommand]
@@ -167,16 +133,60 @@ namespace GMSMAG.ViewModels.Pages
                 return;
             }
 
-            var confirm = await ShowMessageBoxAsync("Confirmation", "Are you sure you want to delete this subscription type?");
-            if (confirm == Wpf.Ui.Controls.MessageBoxResult.Primary)
+            var confirmationResult = await ShowConfirmationDialogAsync("Delete Subscription Type", "Are you sure you want to delete this subscription type?");
+            if (confirmationResult == ContentDialogResult.Primary)
             {
                 await _dataHelper.DeleteAsync(SelectedSubscriptionType.Id);
                 await LoadData();
             }
         }
 
+        private async Task SaveData()
+        {
+            if (SubscriptionType == null) return;
 
-        private async Task<Wpf.Ui.Controls.MessageBoxResult> ShowMessageBoxAsync(string title, string content)
+            if (SubscriptionType.Id != 0) // Assuming Id 0 means new
+            {
+                await _dataHelper.EditAsync(SubscriptionType);
+            }
+            else
+            {
+                await _dataHelper.AddAsync(SubscriptionType);
+            }
+
+            await LoadData();
+        }
+
+        private ContentDialog CreateDialog(string title, string primaryButtonText)
+        {
+            return new ContentDialog
+            {
+                DialogHost = _mainWindow.RootContentDialog,
+                DataContext = this,
+                Title = title,
+                Content = new ManageSubscriptionType(this),
+                PrimaryButtonText = primaryButtonText,
+                CloseButtonText = "Close",
+                DefaultButton = ContentDialogButton.Primary
+            };
+        }
+
+        private async Task<ContentDialogResult> ShowConfirmationDialogAsync(string title, string content)
+        {
+            var dialog = new ContentDialog
+            {
+                DialogHost = _mainWindow.RootContentDialog,
+                Title = title,
+                Content = content,
+                PrimaryButtonText = "Yes",
+                CloseButtonText = "No",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            return await dialog.ShowAsync();
+        }
+
+        private async Task ShowMessageBoxAsync(string title, string content)
         {
             var messageBox = new Wpf.Ui.Controls.MessageBox
             {
@@ -187,7 +197,7 @@ namespace GMSMAG.ViewModels.Pages
                 CloseButtonText = "Ok"
             };
 
-            return await messageBox.ShowDialogAsync();
+            await messageBox.ShowDialogAsync();
         }
     }
 }
