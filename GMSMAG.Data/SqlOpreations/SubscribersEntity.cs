@@ -27,7 +27,6 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Log error (ex.Message)
                 throw new Exception("Error adding subscriber", ex);
             }
         }
@@ -42,7 +41,6 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Log error (ex.Message)
                 throw new Exception("Error adding subscribers in bulk", ex);
             }
         }
@@ -65,7 +63,6 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Log error (ex.Message)
                 throw new Exception("Error deleting subscriber", ex);
             }
         }
@@ -91,7 +88,6 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Log error (ex.Message)
                 throw new Exception("Error deleting subscribers in bulk", ex);
             }
         }
@@ -106,7 +102,6 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Log error (ex.Message)
                 throw new Exception("Error editing subscriber", ex);
             }
         }
@@ -127,7 +122,6 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Log error (ex.Message)
                 throw new Exception("Error finding subscriber", ex);
             }
         }
@@ -141,11 +135,11 @@ namespace GMSMAG.Data
                     .AsNoTracking()
                     .Skip((page - 1) * limit)
                     .Take(limit)
+                    .Include(i => i.Subscriptions.OrderByDescending(s => s.CreatedAt))
                     .ToListAsync();
             }
             catch (Exception ex)
             {
-                // Log error (ex.Message)
                 throw new Exception("Error retrieving subscribers", ex);
             }
         }
@@ -170,7 +164,6 @@ namespace GMSMAG.Data
             }
             catch (Exception ex)
             {
-                // Log error (ex.Message)
                 throw new Exception("Error searching subscribers", ex);
             }
         }

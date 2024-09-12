@@ -2,6 +2,9 @@
 using GMSMAG.Views.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Wpf.Ui;
 
 namespace GMSMAG.Services
@@ -12,7 +15,6 @@ namespace GMSMAG.Services
     public class ApplicationHostService : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
-
         private INavigationWindow _navigationWindow;
 
         public ApplicationHostService(IServiceProvider serviceProvider)
@@ -26,31 +28,40 @@ namespace GMSMAG.Services
         /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await HandleActivationAsync();
+            await HandleActivationAsync(cancellationToken);
         }
 
         /// <summary>
         /// Triggered when the application host is performing a graceful shutdown.
         /// </summary>
         /// <param name="cancellationToken">Indicates that the shutdown process should no longer be graceful.</param>
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
-            await Task.CompletedTask;
+            // Add any necessary cleanup code here
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Creates main window during activation.
         /// </summary>
-        private async Task HandleActivationAsync()
+        private async Task HandleActivationAsync(CancellationToken cancellationToken)
         {
-            if (!Application.Current.Windows.OfType<MainWindow>().Any())
+            // Ensure no other InitAppWindow instances are open
+            if (!Application.Current.Windows.OfType<InitAppWindow>().Any())
             {
-                _navigationWindow = (
-                    _serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow
-                )!;
-                _navigationWindow!.ShowWindow();
+                _navigationWindow = (_serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow)!;
+                if (_navigationWindow != null)
+                {
+                    _navigationWindow.ShowWindow();
 
-                _navigationWindow.Navigate(typeof(Views.Pages.DashboardPage));
+                    // Navigate to the initial page
+                    //_navigationWindow.Navigate(typeof(DashboardPage));
+                }
+                else
+                {
+                    // Log or handle the case where INavigationWindow is not resolved
+                    // e.g., throw new InvalidOperationException("INavigationWindow service is not registered.");
+                }
             }
 
             await Task.CompletedTask;

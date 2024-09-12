@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -15,24 +16,26 @@ namespace GMSMAG.ViewModels.UserControls
     public class SubscribersViewModel : INotifyPropertyChanged
     {
         #region Fields
-        private readonly MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
+
+        private readonly MainWindow _mainWindow = App.GetService<MainWindow>();
         private readonly IDataHelper<Subscriber> _dataHelper;
         private readonly IDataHelper<SubscriptionType> _dataHelperForSTs;
+        private readonly IDataHelper<Subscription> _dataHelperForSubscriptions;
         private Subscriber _subscriber;
         private Subscriber _selectedSubscriber;
         private List<Subscriber> _subscribers;
         private string _searchText;
-        private string _colName = "Id"; // Set default column name to "Id"
-        public bool _isLoading;
+        private string _colName = "Id"; // Default column name for search
+        private bool _isLoading;
+        private string _subscriptionId;
+
         #endregion
 
         #region Properties
+
         public bool IsLoading
         {
-            get
-            {
-                return _isLoading;
-            }
+            get => _isLoading;
             set
             {
                 if (_isLoading != value)
@@ -212,23 +215,43 @@ namespace GMSMAG.ViewModels.UserControls
                 }
             }
         }
+
+        public string SubscriptionId
+        {
+            get => _subscriptionId;
+            set
+            {
+                if (_subscriptionId != value)
+                {
+                    _subscriptionId = value;
+                    OnPropertyChanged(nameof(SubscriptionId));
+                }
+            }
+        }
+
         #endregion
 
         #region Commands
+
         public ICommand AddDataCommand { get; }
         public ICommand EditDataCommand { get; }
         public ICommand DeleteDataCommand { get; }
         public ICommand SaveDataCommand { get; }
-        public ICommand SearchDataCommand { get; }  
+        public ICommand SearchDataCommand { get; }
         public ICommand LoadDataCommand { get; }
+
         #endregion
 
-        public SubscribersViewModel(IDataHelper<Subscriber> dataHelper, IDataHelper<SubscriptionType> dataHelperForSTs)
+        public SubscribersViewModel(
+            IDataHelper<Subscriber> dataHelper,
+            IDataHelper<SubscriptionType> dataHelperForSTs,
+            IDataHelper<Subscription> dataHelperForSubscriptions)
         {
             _subscriber = new Subscriber();
             _subscribers = new List<Subscriber>();
             _dataHelper = dataHelper;
             _dataHelperForSTs = dataHelperForSTs;
+            _dataHelperForSubscriptions = dataHelperForSubscriptions;
 
             AddDataCommand = new RelayCommand(async () => await AddData());
             EditDataCommand = new RelayCommand(async () => await EditData());
@@ -236,9 +259,6 @@ namespace GMSMAG.ViewModels.UserControls
             DeleteDataCommand = new RelayCommand(async () => await DeleteData());
             SearchDataCommand = new RelayCommand(async () => await SearchData());
             LoadDataCommand = new RelayCommand(async () => await LoadData(1, 50));
-
-            // Initial data load
-            Task.Run(async() => await LoadData());
         }
 
         private async Task DeleteData()
@@ -259,6 +279,19 @@ namespace GMSMAG.ViewModels.UserControls
 
         private async Task SaveData()
         {
+            if (!string.IsNullOrEmpty(_subscriptionId))
+            {
+                var st = await _dataHelperForSTs.FindAsync(int.Parse(_subscriptionId));
+                _subscriber.Subscriptions.Add(new Subscription
+                {
+                    AdminId = 1,
+                    SubscriberId = _subscriber.Id,
+                    SubscriptionTypeId = int.Parse(_subscriptionId),
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddDays(st.DurationInDays),
+                });
+            }
+
             if (_selectedSubscriber != null)
             {
                 await _dataHelper.EditAsync(_subscriber);
@@ -267,6 +300,7 @@ namespace GMSMAG.ViewModels.UserControls
             {
                 await _dataHelper.AddAsync(_subscriber);
             }
+
             await LoadData();
         }
 
@@ -278,14 +312,14 @@ namespace GMSMAG.ViewModels.UserControls
                 return;
             }
 
-            var subscriptionsTypes = await _dataHelperForSTs.GetAllAsync();
+            var subscriptionTypes = await _dataHelperForSTs.GetAllAsync();
 
             var dialog = new ContentDialog
             {
                 DialogHost = _mainWindow.RootContentDialog,
                 DataContext = this,
                 Title = "Edit Subscriber",
-                Content = new AddSubscriber(this, subscriptionsTypes),
+                Content = new AddSubscriber(this, subscriptionTypes),
                 PrimaryButtonText = "Save",
                 CloseButtonText = "Close",
                 DefaultButton = ContentDialogButton.Primary,
@@ -314,14 +348,14 @@ namespace GMSMAG.ViewModels.UserControls
         public async Task AddData()
         {
             ClearData();
-            var subscriptionsTypes = await _dataHelperForSTs.GetAllAsync();
+            var subscriptionTypes = await _dataHelperForSTs.GetAllAsync();
 
             var dialog = new ContentDialog
             {
                 DialogHost = _mainWindow.RootContentDialog,
                 DataContext = this,
                 Title = "Add Subscriber",
-                Content = new AddSubscriber(this, subscriptionsTypes),
+                Content = new AddSubscriber(this, subscriptionTypes),
                 PrimaryButtonText = "Add",
                 CloseButtonText = "Close",
                 DefaultButton = ContentDialogButton.Primary,
@@ -344,20 +378,15 @@ namespace GMSMAG.ViewModels.UserControls
             Birthday = DateTime.Now;
             Address = string.Empty;
             Subscriptions = new List<Subscription>();
-            UpdatedAt = null;
         }
 
-        public async Task LoadData(int page = 1, int limit = 50)
+        public async Task SearchData()
         {
             IsLoading = true;
             try
             {
-                var items = await _dataHelper.GetAllAsync(page, limit);
-                Subscribers = new List<Subscriber>(items);
-            }
-            catch (Exception ex)
-            {
-               await ShowMessageBoxAsync("Error",ex.Message);
+                var result = await _dataHelper.SearchAsync(SearchText, ColName);
+                Subscribers = result.ToList();
             }
             finally
             {
@@ -365,17 +394,12 @@ namespace GMSMAG.ViewModels.UserControls
             }
         }
 
-        private async Task SearchData()
+        public async Task LoadData(int pageNumber = 1, int pageSize = 50)
         {
             IsLoading = true;
             try
             {
-                var items = await _dataHelper.SearchAsync(_searchText, _colName);
-                Subscribers = new List<Subscriber>(items);
-            }
-            catch (Exception ex)
-            {
-                await ShowMessageBoxAsync("Error",ex.Message);
+                Subscribers = (await _dataHelper.GetAllAsync(pageNumber, pageSize)).ToList();
             }
             finally
             {
@@ -383,32 +407,30 @@ namespace GMSMAG.ViewModels.UserControls
             }
         }
 
-        private async Task ShowMessageBoxAsync(string title, string content)
+        private Task ShowMessageBoxAsync(string title, string message)
         {
             var messageBox = new Wpf.Ui.Controls.MessageBox
             {
-                Width = 300,
-                Height = 150,
                 Title = title,
-                Content = content,
+                Content=message
             };
-            await messageBox.ShowDialogAsync();
+            return messageBox.ShowDialogAsync();
         }
 
-        private async Task<ContentDialogResult> ShowConfirmationDialogAsync(string title, string content)
+        private Task<ContentDialogResult> ShowConfirmationDialogAsync(string title, string message)
         {
             var dialog = new ContentDialog
             {
                 DialogHost = _mainWindow.RootContentDialog,
                 Title = title,
-                Content = content,
+                Content = message,
                 PrimaryButtonText = "Yes",
-                CloseButtonText = "No",
-                DefaultButton = ContentDialogButton.Primary,
+                CloseButtonText = "No"
             };
-
-            return await dialog.ShowAsync();
+            return dialog.ShowAsync();
         }
+
+        #region INotifyPropertyChanged Implementation
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -416,5 +438,7 @@ namespace GMSMAG.ViewModels.UserControls
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        #endregion
     }
 }

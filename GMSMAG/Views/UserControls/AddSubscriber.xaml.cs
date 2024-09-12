@@ -1,19 +1,8 @@
 ﻿using GMSMAG.Models;
 using GMSMAG.ViewModels.UserControls;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GMSMAG.Views.UserControls
 {
@@ -22,15 +11,31 @@ namespace GMSMAG.Views.UserControls
     /// </summary>
     public partial class AddSubscriber : UserControl
     {
-        public AddSubscriber(SubscribersViewModel subscribersViewModel,List<SubscriptionType> subscriptionsTypes)
+        public AddSubscriber(SubscribersViewModel subscribersViewModel, List<SubscriptionType> subscriptionTypes)
         {
             InitializeComponent();
+
+            // Set the DataContext for binding to the ViewModel
             DataContext = subscribersViewModel;
-            subscriptionsTypesComboBox.Items.Clear();
-            subscriptionsTypesComboBox.ItemsSource = subscriptionsTypes;
+
+            // Initialize the ComboBox with subscription types
+            ConfigureSubscriptionComboBox(subscriptionTypes, subscribersViewModel);
+        }
+
+        private void ConfigureSubscriptionComboBox(List<SubscriptionType> subscriptionTypes, SubscribersViewModel subscribersViewModel)
+        {
+            if (subscriptionTypes == null || !subscriptionTypes.Any()) return;
+
+            // Set the ComboBox ItemsSource and properties
+            subscriptionsTypesComboBox.ItemsSource = subscriptionTypes;
             subscriptionsTypesComboBox.DisplayMemberPath = "SubscriptionNamePrice";
             subscriptionsTypesComboBox.SelectedValuePath = "Id";
-            subscriptionsTypesComboBox.SelectedIndex = 0;
+
+            // Set initial selection based on the subscriber's first subscription (if available)
+            if (subscribersViewModel?.SelectedSubscriber?.Subscriptions?.Any() == true)
+            {
+                subscriptionsTypesComboBox.SelectedValue = subscribersViewModel.SelectedSubscriber.Subscriptions.First();
+            }
         }
     }
 }

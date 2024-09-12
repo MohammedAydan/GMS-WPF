@@ -50,7 +50,10 @@ namespace GMSMAG
                 services.AddSingleton<INavigationService, NavigationService>();
 
                 // Main window with navigation
-                services.AddSingleton<INavigationWindow, MainWindow>();
+                services.AddSingleton<INavigationWindow, InitAppWindow>(); 
+                services.AddSingleton<MainWindow>();
+                //services.AddSingleton<INavigationWindow, MainWindow>();
+                //services.AddSingleton<INavigationWindow, LoginWindow>();
                 services.AddSingleton<MainWindowViewModel>();
 
                 services.AddSingleton<DashboardPage>();

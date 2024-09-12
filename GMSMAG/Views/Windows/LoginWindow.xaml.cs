@@ -26,10 +26,6 @@ namespace GMSMAG.Views.Windows
             InitializeComponent();
         }
 
-        public void CloseWindow()
-        {
-            throw new NotImplementedException();
-        }
 
         public INavigationView GetNavigation()
         {
@@ -51,9 +47,8 @@ namespace GMSMAG.Views.Windows
             throw new NotImplementedException();
         }
 
-        public void ShowWindow()
-        {
-            throw new NotImplementedException();
-        }
+        public void ShowWindow() => Show();
+
+        public void CloseWindow() => Close();
     }
 }

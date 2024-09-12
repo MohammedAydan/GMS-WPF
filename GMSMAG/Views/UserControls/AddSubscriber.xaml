@@ -20,7 +20,7 @@
             <DatePicker Width="360"  Margin="0 10 0 0" Text="{Binding Birthday}" DisplayDate="{Binding Birthday}"/>
             <ui:TextBox Width="360" PlaceholderText="Enter address" Margin="0 10 0 0" Text="{Binding Address}"/>
             <ui:TextBlock Width="360" Text="Enter subscription type" Margin="0 10 0 0"/>
-            <ComboBox Width="360"  Margin="0 10 0 0" Name="subscriptionsTypesComboBox" SelectedItem="{Binding Subscriptions}"/>
+            <ComboBox Width="360"  Margin="0 10 0 0" Name="subscriptionsTypesComboBox" SelectedValuePath="{Binding SubscriptionId}"/>
             <!--<ui:Button Content="Add" Width="360" Margin="0 30 0 0"/>-->
         </StackPanel>
     </Grid>

@@ -73,7 +73,7 @@ namespace GMSMAG.Data
             try
             {
                 var subscriptionTypes = await _dbContext.SubscriptionsTypes
-                    .Where(st => ids.Contains(st.Id))
+                    .Where(s => ids.Contains(s.Id))
                     .ToListAsync();
 
                 if (subscriptionTypes.Any())
@@ -113,7 +113,7 @@ namespace GMSMAG.Data
             {
                 var subscriptionType = await _dbContext.SubscriptionsTypes
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(st => st.Id == id);
+                    .FirstOrDefaultAsync(s => s.Id == id);
 
                 if (subscriptionType == null)
                     throw new KeyNotFoundException("Subscription type not found");
@@ -148,12 +148,13 @@ namespace GMSMAG.Data
         {
             try
             {
+                
                 var query = _dbContext.SubscriptionsTypes.AsQueryable();
 
                 if (colName == "Id")
-                    query = query.Where(st => st.Id.ToString().Equals(term));
+                    query = query.Where(s => s.Id.ToString().Equals(term));
                 else
-                    query = query.Where(st => EF.Property<string>(st, colName).Contains(term));
+                    query = query.Where(s => EF.Property<string>(s, colName).Contains(term));
 
                 return await query
                     .AsNoTracking()

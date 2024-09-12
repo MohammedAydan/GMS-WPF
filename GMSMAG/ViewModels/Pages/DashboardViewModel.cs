@@ -14,7 +14,7 @@ namespace GMSMAG.ViewModels.Pages
         public DashboardViewModel(IDashboardEntity dashboardEntity)
         {
             _dashboardEntity = dashboardEntity;
-            Task.Run(() => Load());
+            //Task.Run(() => Load());
         }
 
         [ObservableProperty]
@@ -57,7 +57,7 @@ namespace GMSMAG.ViewModels.Pages
             ExpiredSubscribers = res;
         }
 
-        private async void Load()
+        public async Task Load()
         {
             IsLoading = true;
 

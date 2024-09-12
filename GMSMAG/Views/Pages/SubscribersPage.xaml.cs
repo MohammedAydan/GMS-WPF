@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Data;
-using System.Data.OleDb;
-using System.Drawing;
-using System.Windows.Controls;
-using System.Windows.Media;
-using GMSMAG.Data;
-using GMSMAG.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows;
 using GMSMAG.ViewModels.Pages;
 using GMSMAG.ViewModels.UserControls;
+using GMSMAG.Views.Windows;
 using Wpf.Ui.Controls;
 
 namespace GMSMAG.Views.Pages
@@ -15,26 +12,27 @@ namespace GMSMAG.Views.Pages
     public partial class SubscribersPage : INavigableView<SubscribersViewModel>
     {
         public SubscribersViewModel ViewModel { get; }
-        private PrintViewModel _printViewModel;
 
         public SubscribersPage(SubscribersViewModel viewModel)
         {
-            _printViewModel = new PrintViewModel();
-            ViewModel = viewModel;
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             DataContext = viewModel;
             InitializeComponent();
-
             InitSearchComboBox();
         }
 
         private void InitSearchComboBox()
         {
-            searchComboBox.Items.Clear();
-            searchComboBox.Items.Add(new { Id = "Id", Name = "Id" });
-            searchComboBox.Items.Add(new { Id = "FirstName", Name = "First name" });
-            searchComboBox.Items.Add(new { Id = "LastName", Name = "Last name" });
-            searchComboBox.Items.Add(new { Id = "PhoneNumber", Name = "Phone number" });
-            searchComboBox.Items.Add(new { Id = "HomePhoneNumber", Name = "H-Phone number" });
+            var searchOptions = new List<dynamic>
+            {
+                new { Id = "Id", Name = "Id" },
+                new { Id = "FirstName", Name = "First Name" },
+                new { Id = "LastName", Name = "Last Name" },
+                new { Id = "PhoneNumber", Name = "Phone Number" },
+                new { Id = "HomePhoneNumber", Name = "Home Phone Number" }
+            };
+
+            searchComboBox.ItemsSource = searchOptions;
             searchComboBox.DisplayMemberPath = "Name";
             searchComboBox.SelectedValuePath = "Id";
             searchComboBox.SelectedIndex = 0;
@@ -42,13 +40,37 @@ namespace GMSMAG.Views.Pages
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            await Task.Run(() => ViewModel.LoadData());
+            await LoadDataAsync();
         }
 
-        private async void PrintDataGrid(object sender, RoutedEventArgs e)
+        private async Task LoadDataAsync()
         {
-            await Task.Run(async() => await _printViewModel.GenerateAndSavePdfAsync(dataGrid,"D:\\Downloads\\GMS-REPORT-PDF.pdf"));
+            if (ViewModel == null)
+            {
+                await ShowErrorAsync("Error", "ViewModel is not initialized.");
+                return;
+            }
+
+            try
+            {
+                await ViewModel.LoadData();
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorAsync("Error", ex.Message);
+            }
         }
 
+        private async Task ShowErrorAsync(string title, string message)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = "Ok",
+                DialogHost = ((MainWindow)Application.Current.MainWindow).RootContentDialog
+            };
+            await dialog.ShowAsync();
+        }
     }
 }

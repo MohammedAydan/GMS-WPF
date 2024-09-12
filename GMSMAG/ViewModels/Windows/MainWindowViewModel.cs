@@ -6,7 +6,7 @@ namespace GMSMAG.ViewModels.Windows
     public partial class MainWindowViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string _applicationTitle = "WPF UI - GMSMAG";
+        private string _applicationTitle = "GMS-MAG";
 
         [ObservableProperty]
         private ObservableCollection<object> _menuItems = new()
@@ -57,7 +57,10 @@ namespace GMSMAG.ViewModels.Windows
         [ObservableProperty]
         private ObservableCollection<MenuItem> _trayMenuItems = new()
         {
-            new MenuItem { Header = "Home", Tag = "tray_home" }
+            new MenuItem { Header = "Home", Tag = "tray_home" },
+            new MenuItem { Header = "Subscribers", Tag = "tray_subscribers" },
+            new MenuItem { Header = "Subscriptions", Tag = "tray_subscriptions" },
+            new MenuItem { Header = "Subscriptions Types", Tag = "tray_subscriptions_types" }
         };
     }
 }
